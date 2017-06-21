@@ -14,7 +14,7 @@ class UsersController extends Controller
 {
     public function __construct() {
         $this->middleware('auth', [
-            'only' => ['edit', 'update']
+            'only' => ['edit', 'update', 'destroy']
         ]);
 
         $this->middleware('guest', [
@@ -24,7 +24,8 @@ class UsersController extends Controller
     }
 
     public function index() {
-        $users = User::all();
+//        $users = User::all();
+        $users = User::paginate(1);
         return view('users.index', compact('users'));
     }
 
@@ -57,7 +58,7 @@ class UsersController extends Controller
 
     public function edit($id) {
         $user = User::findOrFail($id);
-//        $this->authorize('update', $user);
+        $this->authorize('update', $user);
 
         return view('users.edit', compact('user'));
     }
@@ -81,6 +82,13 @@ class UsersController extends Controller
 
         session()->flash('success', '成功更新个人信息');
         return redirect()->route('users.show', $id);
+    }
+
+    public function destroy($id) {
+        $user = User::findOrFail($id);
+        $user->delete();
+        session()->flash('success', '成功删除用户！');
+        return back();
     }
 
 }
